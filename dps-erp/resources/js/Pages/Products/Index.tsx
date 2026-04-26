@@ -1,7 +1,7 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { GlassCard, PageHeader, StatusBadge, EmptyState } from '@/Components/ui';
 import { Head, usePage, Link } from '@inertiajs/react';
-import { Plus, Search, Pencil, Trash2, Package } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Package, Wrench } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ProductsIndex() {
@@ -25,9 +25,14 @@ export default function ProductsIndex() {
                 title="Products" 
                 subtitle="Manage your product catalog"
                 action={
-                    <Link href="/products/create" className="glass-button flex items-center gap-2">
-                        <Plus className="w-4 h-4" /> Add Product
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <Link href="/services/create" className="glass-button flex items-center gap-2">
+                            <Wrench className="w-4 h-4" /> Add Service
+                        </Link>
+                        <Link href="/products/create" className="glass-button flex items-center gap-2">
+                            <Plus className="w-4 h-4" /> Add Product
+                        </Link>
+                    </div>
                 }
             />
 

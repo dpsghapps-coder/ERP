@@ -141,7 +141,7 @@ export default function StudioCreate() {
 
                         <GlassCard>
                             <div className="flex flex-col gap-3">
-                                <button type="submit" disabled={processing} className="glass-button bg-white/20 w-full">
+                                <button type="submit" disabled={processing} className="glass-button w-full">
                                     {processing ? 'Creating...' : 'Create Booking'}
                                 </button>
                                 <Link href="/studio" className="glass-button w-full text-center">Cancel</Link>

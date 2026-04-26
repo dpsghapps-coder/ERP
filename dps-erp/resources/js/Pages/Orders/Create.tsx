@@ -247,7 +247,7 @@ export default function OrderCreate() {
                             </div>
 
                             <div className="flex flex-col gap-3 mt-6">
-                                <button type="submit" disabled={processing} className="glass-button bg-white/20">
+                                <button type="submit" disabled={processing} className="glass-button">
                                     {processing ? 'Saving...' : 'Save as Draft'}
                                 </button>
                             </div>

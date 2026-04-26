@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\InventoryProduct;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -25,8 +27,19 @@ class ProductController extends Controller
     public function create()
     {
         $categories = ProductCategory::all();
+        $inventoryProducts = InventoryProduct::where('item_status', 'Active')
+            ->orderBy('item_name')
+            ->get();
+        $services = Service::where('is_active', true)
+            ->orderBy('name')
+            ->get();
         
-        return inertia('Products/Create', ['categories' => $categories]);
+        return inertia('Products/Create', [
+            'categories' => $categories,
+            'inventoryProducts' => $inventoryProducts,
+            'services' => $services,
+            'nextSku' => Product::generateSku(),
+        ]);
     }
 
     public function store(Request $request)
@@ -39,18 +52,53 @@ class ProductController extends Controller
             'category_id' => 'nullable|exists:product_categories,id',
             'unit' => 'required|string|max:30',
             'is_active' => 'boolean',
+            'components' => 'nullable|array',
+            'components.*.component_id' => 'required|integer',
+            'components.*.component_type' => 'required|in:App\Models\InventoryProduct,App\Models\Service',
+            'components.*.quantity' => 'required|numeric|min:0.01',
         ]);
 
-        Product::create($validated);
-        
+        $product = Product::create([
+            'sku' => $validated['sku'],
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'type' => $validated['type'],
+            'category_id' => $validated['category_id'] ?? null,
+            'unit' => $validated['unit'],
+            'is_active' => $validated['is_active'] ?? true,
+        ]);
+
+        if (!empty($validated['components'])) {
+            foreach ($validated['components'] as $component) {
+                $product->components()->create([
+                    'component_id' => $component['component_id'],
+                    'component_type' => $component['component_type'],
+                    'quantity' => $component['quantity'],
+                ]);
+            }
+        }
+
         return redirect()->route('products.index')->with('success', 'Product created successfully');
     }
 
     public function edit(Product $product)
     {
         $categories = ProductCategory::all();
+        $product->load('components.component');
         
-        return inertia('Products/Edit', ['product' => $product, 'categories' => $categories]);
+        $inventoryProducts = InventoryProduct::where('item_status', 'Active')
+            ->orderBy('item_name')
+            ->get();
+        $services = Service::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+        
+        return inertia('Products/Edit', [
+            'product' => $product,
+            'categories' => $categories,
+            'inventoryProducts' => $inventoryProducts,
+            'services' => $services,
+        ]);
     }
 
     public function update(Request $request, Product $product)
@@ -63,10 +111,33 @@ class ProductController extends Controller
             'category_id' => 'nullable|exists:product_categories,id',
             'unit' => 'required|string|max:30',
             'is_active' => 'boolean',
+            'components' => 'nullable|array',
+            'components.*.component_id' => 'required|integer',
+            'components.*.component_type' => 'required|in:App\Models\InventoryProduct,App\Models\Service',
+            'components.*.quantity' => 'required|numeric|min:0.01',
         ]);
 
-        $product->update($validated);
-        
+        $product->update([
+            'sku' => $validated['sku'],
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'type' => $validated['type'],
+            'category_id' => $validated['category_id'] ?? null,
+            'unit' => $validated['unit'],
+            'is_active' => $validated['is_active'] ?? true,
+        ]);
+
+        if (isset($validated['components'])) {
+            $product->components()->delete();
+            foreach ($validated['components'] as $component) {
+                $product->components()->create([
+                    'component_id' => $component['component_id'],
+                    'component_type' => $component['component_type'],
+                    'quantity' => $component['quantity'],
+                ]);
+            }
+        }
+
         return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
 

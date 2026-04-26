@@ -23,7 +23,18 @@ import {
     UserPlus,
     Boxes,
     Truck,
-    ClipboardList
+    ClipboardList,
+    DollarSign,
+    FolderOpen,
+    Wrench,
+    Clock,
+    Calendar,
+    CalendarDays,
+    DollarSignIcon,
+    TrendingUp,
+    BellIcon,
+    UsersIcon,
+    Folder
 } from 'lucide-react';
 
 interface NavItem {
@@ -39,12 +50,10 @@ interface CrmSubItem {
 }
 
 const enterpriseNav: NavItem[] = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'CRM', href: '/crm', icon: Users },
+    { name: 'Inventory', href: '/inventory/products', icon: Package },
     { name: 'Orders', href: '/orders', icon: ShoppingCart },
     { name: 'Production', href: '/production', icon: Factory },
-    { name: 'Procurement', href: '/procurement', icon: ShoppingBag },
-    { name: 'HRM', href: '/hrm', icon: UserCog },
-    { name: 'Studio', href: '/studio', icon: Camera },
 ];
 
 const crmSubItems: CrmSubItem[] = [
@@ -60,12 +69,39 @@ const inventorySubItems: CrmSubItem[] = [
     { name: 'Requisition', href: '/inventory/requisitions', icon: ClipboardList },
 ];
 
+const productsSubItems: CrmSubItem[] = [
+    { name: 'Products', href: '/products', icon: Package },
+    { name: 'Services', href: '/services', icon: Wrench },
+];
+
+const managementNav: NavItem[] = [
+    { name: 'HRM', href: '/hrm', icon: UserCog },
+    { name: 'Procurement', href: '/procurement', icon: ShoppingBag },
+    { name: 'Finance', href: '/finance', icon: DollarSign },
+];
+
+const hrmSubItems: CrmSubItem[] = [
+    { name: 'Dashboard', href: '/hrm/dashboard', icon: LayoutDashboard },
+    { name: 'Employees', href: '/hrm/employees', icon: UsersIcon },
+    { name: 'Attendance', href: '/hrm/attendance', icon: Clock },
+    { name: 'Leaves', href: '/hrm/leaves', icon: CalendarDays },
+    { name: 'Holidays', href: '/hrm/holidays', icon: Calendar },
+    { name: 'Payroll', href: '/hrm/payroll', icon: DollarSignIcon },
+    { name: 'Performance', href: '/hrm/performance', icon: TrendingUp },
+    { name: 'Noticeboard', href: '/hrm/noticeboard', icon: BellIcon },
+];
+
 const rightNavItems: NavItem[] = [
     { name: 'Admin', href: '/admin', icon: Settings },
 ];
 
 const systemNav: NavItem[] = [
     { name: 'Admin', href: '/admin', icon: Settings },
+];
+
+const productsSubItemsFull: CrmSubItem[] = [
+    { name: 'Products', href: '/products', icon: Package },
+    { name: 'Services', href: '/services', icon: Wrench },
 ];
 
 export default function AppLayout({ children }: PropsWithChildren) {
@@ -77,18 +113,50 @@ export default function AppLayout({ children }: PropsWithChildren) {
     const [crmSlideUpOpen, setCrmSlideUpOpen] = useState(false);
     const [inventoryDropdownOpen, setInventoryDropdownOpen] = useState(false);
     const [inventorySlideUpOpen, setInventorySlideUpOpen] = useState(false);
+    const [hrmDropdownOpen, setHrmDropdownOpen] = useState(false);
+    const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [showResults, setShowResults] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const searchRef = useRef<HTMLDivElement>(null);
     const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+    // Theme toggle function
+    const toggleTheme = () => {
+      const newTheme = theme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(newTheme);
+      localStorage.setItem('theme', newTheme);
+    };
+
+    // Load theme on mount
+    useEffect(() => {
+      const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+      if (savedTheme) {
+        setTheme(savedTheme);
+        document.documentElement.classList.add(savedTheme);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme('dark');
+        document.documentElement.classList.add('dark');
+      }
+    }, []);
 
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
     const isCrmPage = currentPath.startsWith('/crm');
     const isInventoryPage = currentPath.startsWith('/inventory') || currentPath.startsWith('/products');
+    const isOrdersPage = currentPath.startsWith('/orders');
+    const isProductionPage = currentPath.startsWith('/production');
+    const isProductsPage = currentPath.startsWith('/products') || currentPath.startsWith('/services');
+    const isHrmPage = currentPath.startsWith('/hrm');
+    const isProcurementPage = currentPath.startsWith('/procurement');
+    const isFinancePage = currentPath.startsWith('/finance');
+    const isStudioPage = currentPath.startsWith('/studio');
+    const isAdminPage = currentPath.startsWith('/admin');
 
-    // Auto-expand CRM dropdown on CRM pages
+    // Auto-expand dropdowns on their pages
     useEffect(() => {
         if (isCrmPage) {
             setCrmDropdownOpen(true);
@@ -96,7 +164,13 @@ export default function AppLayout({ children }: PropsWithChildren) {
         if (isInventoryPage) {
             setInventoryDropdownOpen(true);
         }
-    }, [isCrmPage, isInventoryPage]);
+        if (isHrmPage) {
+            setHrmDropdownOpen(true);
+        }
+        if (isProductsPage) {
+            setProductsDropdownOpen(true);
+        }
+    }, [isCrmPage, isInventoryPage, isHrmPage, isProductsPage]);
 
     // Search handler
     const handleSearch = async (query: string) => {
@@ -178,12 +252,28 @@ export default function AppLayout({ children }: PropsWithChildren) {
                 <div className="flex items-center gap-1">
                     <button 
                         onClick={() => setRightDrawerOpen(true)}
-                        className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
                     >
-                        <LayoutDashboard className="w-5 h-5 text-slate-600" />
+                        <LayoutDashboard className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     </button>
-                    <button className="p-2 hover:bg-slate-100 rounded-xl transition-colors relative">
-                        <Bell className="w-5 h-5 text-slate-600" />
+                    {/* Theme Toggle */}
+                    <button 
+                        onClick={toggleTheme}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                        aria-label="Toggle theme"
+                    >
+                        {theme === 'light' ? (
+                            <svg className="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                            </svg>
+                        ) : (
+                            <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 10a1 1 0 10-2 0v1a1 1 0 102 0v-1zm-7.071.929a1 1 0 00-1.414 0l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 0zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                    </button>
+                    <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors relative">
+                        <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                         <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     </button>
                     <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center ml-1">
@@ -392,6 +482,15 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                     </div>
                                 )}
                             </div>
+                            
+                            {/* OPERATIONS Section */}
+                            <div className="px-3 mt-2 mb-2">
+                                <span className="text-xs text-slate-400 uppercase font-medium">Operations</span>
+                            </div>
+                            <Link href="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentPath === '/dashboard' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`} onClick={() => setMobileMenuOpen(false)}>
+                                <LayoutDashboard className="w-5 h-5" />
+                                Dashboard
+                            </Link>
                             {enterpriseNav.map((item) => (
                                 <Link
                                     key={item.name}
@@ -407,8 +506,41 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                     {item.name}
                                 </Link>
                             ))}
-                            <div className="border-t border-slate-200 my-4 pt-4">
-                                <span className="text-xs text-slate-400 uppercase px-3">System</span>
+                            
+                            {/* MANAGEMENT Section */}
+                            <div className="px-3 mt-4 pt-4 mb-2 border-t border-slate-200">
+                                <span className="text-xs text-slate-400 uppercase font-medium">Management</span>
+                            </div>
+                            {managementNav.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                                        (item.name === 'HRM' && isHrmPage) ||
+                                        (item.name === 'Procurement' && isProcurementPage) ||
+                                        (item.name === 'Finance' && isFinancePage)
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <item.icon className="w-5 h-5" />
+                                    {item.name}
+                                </Link>
+                            ))}
+                            
+                            {/* BUSINESS Section */}
+                            <div className="px-3 mt-4 pt-4 mb-2 border-t border-slate-200">
+                                <span className="text-xs text-slate-400 uppercase font-medium">Business</span>
+                            </div>
+                            <Link href="/studio" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isStudioPage ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`} onClick={() => setMobileMenuOpen(false)}>
+                                <Camera className="w-5 h-5" />
+                                Studio
+                            </Link>
+                            
+                            {/* SYSTEM Section */}
+                            <div className="px-3 mt-4 pt-4 mb-2 border-t border-slate-200">
+                                <span className="text-xs text-slate-400 uppercase font-medium">System</span>
                             </div>
                             {systemNav.map((item) => (
                                 <Link
@@ -551,22 +683,143 @@ export default function AppLayout({ children }: PropsWithChildren) {
                             </div>
                         )}
                     </div>
+                    
+                    {/* OPERATIONS Section */}
+                    <div className="px-3 mt-4 mb-2">
+                        {sidebarOpen && <span className="text-xs text-slate-400 uppercase font-medium">Operations</span>}
+                    </div>
                     <div className="space-y-1 px-3">
-                        {enterpriseNav.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                                    currentPath === item.href
+                        <Link href="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentPath === '/dashboard' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+                            <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                            {sidebarOpen && <span>Dashboard</span>}
+                        </Link>
+                        
+                        {/* Products & Services Dropdown */}
+                        <div className="space-y-1">
+                            {sidebarOpen ? (
+                                <button
+                                    onClick={() => setProductsDropdownOpen(!productsDropdownOpen)}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                        isProductsPage
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Package className="w-5 h-5 flex-shrink-0" />
+                                        <span>Products & Services</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform ${productsDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/products"
+                                    className={`flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                                        isProductsPage
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <Package className="w-5 h-5" />
+                                </Link>
+                            )}
+                            {productsDropdownOpen && sidebarOpen && (
+                                <div className="mt-1 space-y-1 ml-4 border-l-2 border-slate-200 pl-2">
+                                    {productsSubItemsFull.map((item) => (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                                                currentPath === item.href
+                                                    ? 'bg-slate-100 text-slate-900 font-medium'
+                                                    : 'text-slate-500 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            <item.icon className="w-4 h-4" />
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {/* MANAGEMENT Section */}
+                    <div className="px-3 mt-6 mb-2">
+                        {sidebarOpen && <span className="text-xs text-slate-400 uppercase font-medium">Management</span>}
+                    </div>
+                    
+                    {/* HRM Dropdown */}
+                    <div className="space-y-1 px-3 mb-1">
+                        {sidebarOpen ? (
+                            <button
+                                onClick={() => setHrmDropdownOpen(!hrmDropdownOpen)}
+                                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                    isHrmPage
                                         ? 'bg-slate-900 text-white'
                                         : 'text-slate-600 hover:bg-slate-100'
                                 }`}
                             >
-                                <item.icon className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span>{item.name}</span>}
+                                <div className="flex items-center gap-3">
+                                    <UserCog className="w-5 h-5 flex-shrink-0" />
+                                    <span>HRM</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 transition-transform ${hrmDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                        ) : (
+                            <Link
+                                href="/hrm/dashboard"
+                                className={`flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                                    isHrmPage
+                                        ? 'bg-slate-900 text-white'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                }`}
+                            >
+                                <UserCog className="w-5 h-5" />
                             </Link>
-                        ))}
+                        )}
+                        {hrmDropdownOpen && sidebarOpen && (
+                            <div className="mt-1 space-y-1">
+                                {hrmSubItems.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                                            currentPath === item.href
+                                                ? 'bg-slate-100 text-slate-900 font-medium'
+                                                : 'text-slate-500 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                        <item.icon className="w-4 h-4" />
+                                        {item.name}
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
+
+                    <Link href="/procurement" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isProcurementPage ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+                        <ShoppingBag className="w-5 h-5 flex-shrink-0" />
+                        {sidebarOpen && <span>Procurement</span>}
+                    </Link>
+                    
+                    <Link href="/finance" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isFinancePage ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+                        <DollarSign className="w-5 h-5 flex-shrink-0" />
+                        {sidebarOpen && <span>Finance</span>}
+                    </Link>
+                    
+                    {/* BUSINESS Section */}
+                    <div className="px-3 mt-6 mb-2">
+                        {sidebarOpen && <span className="text-xs text-slate-400 uppercase font-medium">Business</span>}
+                    </div>
+                    <div className="space-y-1 px-3">
+                        <Link href="/studio" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isStudioPage ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+                            <Camera className="w-5 h-5 flex-shrink-0" />
+                            {sidebarOpen && <span>Studio</span>}
+                        </Link>
+                    </div>
+                    
+                    {/* SYSTEM Section */}
                     <div className="px-3 mt-6 mb-2">
                         {sidebarOpen && <span className="text-xs text-slate-400 uppercase font-medium">System</span>}
                     </div>
@@ -656,18 +909,33 @@ export default function AppLayout({ children }: PropsWithChildren) {
                         </div>
                     )}
                 </div>
-                <div className="flex-1 flex items-center justify-end gap-4">
-                    <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors relative">
-                        <Bell className="w-5 h-5 text-slate-600" />
+                <div className="flex-1 flex items-center justify-end gap-2">
+                    <button 
+                        onClick={toggleTheme}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        aria-label="Toggle theme"
+                    >
+                        {theme === 'light' ? (
+                            <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                            </svg>
+                        ) : (
+                            <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 10a1 1 0 10-2 0v1a1 1 0 102 0v-1zm-7.071.929a1 1 0 00-1.414 0l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 0zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                    </button>
+                    <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors relative">
+                        <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                         <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
                     <Link 
                         href={route('logout')} 
                         method="post"
                         as="button"
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                     >
-                        <LogOut className="w-5 h-5 text-slate-600" />
+                        <LogOut className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     </Link>
                 </div>
             </header>

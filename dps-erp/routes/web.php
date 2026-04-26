@@ -38,6 +38,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('products.destroy');
 
+    // Services Routes
+    Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services.index');
+    Route::get('/services/create', [\App\Http\Controllers\ServiceController::class, 'create'])->name('services.create');
+    Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store'])->name('services.store');
+    Route::get('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'show'])->name('services.show');
+    Route::get('/services/{service}/edit', [\App\Http\Controllers\ServiceController::class, 'edit'])->name('services.edit');
+    Route::put('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'destroy'])->name('services.destroy');
+
     // Inventory Routes
     Route::get('/inventory/suppliers', [\App\Http\Controllers\Inventory\SupplierController::class, 'index'])->name('inventory.suppliers');
     Route::post('/inventory/suppliers', [\App\Http\Controllers\Inventory\SupplierController::class, 'store'])->name('inventory.suppliers.store');
@@ -83,6 +92,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/procurement/{po}', [\App\Http\Controllers\ProcurementController::class, 'update'])->name('procurement.update');
 
     Route::get('/hrm', [\App\Http\Controllers\HrmController::class, 'index'])->name('hrm.index');
+    Route::get('/hrm/dashboard', [\App\Http\Controllers\HrmController::class, 'dashboard'])->name('hrm.dashboard');
+    Route::get('/hrm/employees', [\App\Http\Controllers\HrmController::class, 'employees'])->name('hrm.employees');
+    Route::get('/hrm/employees/{employee}', [\App\Http\Controllers\HrmController::class, 'employeeShow'])->name('hrm.employeeShow');
+    Route::get('/hrm/attendance', [\App\Http\Controllers\HrmController::class, 'attendance'])->name('hrm.attendance');
+    Route::post('/hrm/attendance/check-in', [\App\Http\Controllers\HrmController::class, 'checkIn'])->name('hrm.checkIn');
+    Route::post('/hrm/attendance/check-out', [\App\Http\Controllers\HrmController::class, 'checkOut'])->name('hrm.checkOut');
+    Route::get('/hrm/leaves', [\App\Http\Controllers\HrmController::class, 'leaves'])->name('hrm.leaves');
+    Route::post('/hrm/leaves', [\App\Http\Controllers\HrmController::class, 'storeLeave'])->name('hrm.leaves.store');
+    Route::post('/hrm/leaves/{leaveRequest}/approve', [\App\Http\Controllers\HrmController::class, 'approveLeave'])->name('hrm.leaves.approve');
+    Route::post('/hrm/leaves/{leaveRequest}/reject', [\App\Http\Controllers\HrmController::class, 'rejectLeave'])->name('hrm.leaves.reject');
+    Route::get('/hrm/holidays', [\App\Http\Controllers\HrmController::class, 'holidays'])->name('hrm.holidays');
+    Route::post('/hrm/holidays', [\App\Http\Controllers\HrmController::class, 'storeHoliday'])->name('hrm.holidays.store');
+    Route::get('/hrm/payroll', [\App\Http\Controllers\HrmController::class, 'payroll'])->name('hrm.payroll');
+    Route::get('/hrm/performance', [\App\Http\Controllers\HrmController::class, 'performance'])->name('hrm.performance');
+    Route::post('/hrm/performance', [\App\Http\Controllers\HrmController::class, 'storePerformance'])->name('hrm.performance.store');
+    Route::get('/hrm/noticeboard', [\App\Http\Controllers\HrmController::class, 'noticeboard'])->name('hrm.noticeboard');
+    Route::post('/hrm/noticeboard', [\App\Http\Controllers\HrmController::class, 'storeNotice'])->name('hrm.noticeboard.store');
+    Route::get('/admin/hrm/departments', [\App\Http\Controllers\HrmController::class, 'departments'])->name('admin.hrm.departments');
+    Route::post('/admin/hrm/departments', [\App\Http\Controllers\HrmController::class, 'storeDepartment'])->name('admin.hrm.departments.store');
+    Route::put('/admin/hrm/departments/{department}', [\App\Http\Controllers\HrmController::class, 'updateDepartment'])->name('admin.hrm.departments.update');
+    Route::delete('/admin/hrm/departments/{department}', [\App\Http\Controllers\HrmController::class, 'destroyDepartment'])->name('admin.hrm.departments.destroy');
     Route::get('/hrm/create', [\App\Http\Controllers\HrmController::class, 'create'])->name('hrm.create');
     Route::post('/hrm', [\App\Http\Controllers\HrmController::class, 'store'])->name('hrm.store');
     Route::get('/hrm/{employee}', [\App\Http\Controllers\HrmController::class, 'show'])->name('hrm.show');
@@ -96,6 +126,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/studio/{booking}/edit', [\App\Http\Controllers\StudioController::class, 'edit'])->name('studio.edit');
     Route::put('/studio/{booking}', [\App\Http\Controllers\StudioController::class, 'update'])->name('studio.update');
     Route::delete('/studio/{booking}', [\App\Http\Controllers\StudioController::class, 'destroy'])->name('studio.destroy');
+
+    // Finance Routes
+    Route::get('/finance', [\App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index');
+    Route::get('/finance/create', [\App\Http\Controllers\FinanceController::class, 'create'])->name('finance.create');
+    Route::post('/finance', [\App\Http\Controllers\FinanceController::class, 'store'])->name('finance.store');
+    Route::get('/finance/{transaction}', [\App\Http\Controllers\FinanceController::class, 'show'])->name('finance.show');
+    Route::get('/finance/{transaction}/edit', [\App\Http\Controllers\FinanceController::class, 'edit'])->name('finance.edit');
+    Route::put('/finance/{transaction}', [\App\Http\Controllers\FinanceController::class, 'update'])->name('finance.update');
+    Route::delete('/finance/{transaction}', [\App\Http\Controllers\FinanceController::class, 'destroy'])->name('finance.destroy');
 
     Route::get('/admin', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/users', [\App\Http\Controllers\AdminController::class, 'users'])->name('admin.users');

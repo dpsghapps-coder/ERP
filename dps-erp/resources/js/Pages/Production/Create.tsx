@@ -104,7 +104,7 @@ export default function ProductionCreate() {
 
                     <div className="flex justify-end gap-4 mt-6 pt-6 border-t border-white/10">
                         <Link href="/production" className="glass-button">Cancel</Link>
-                        <button type="submit" disabled={processing} className="glass-button bg-white/20">
+                        <button type="submit" disabled={processing} className="glass-button">
                             {processing ? 'Creating...' : 'Create Job'}
                         </button>
                     </div>
