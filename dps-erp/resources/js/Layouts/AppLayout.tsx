@@ -34,7 +34,8 @@ import {
     TrendingUp,
     BellIcon,
     UsersIcon,
-    Folder
+    Folder,
+    Plus
 } from 'lucide-react';
 
 interface NavItem {
@@ -51,7 +52,6 @@ interface CrmSubItem {
 
 const enterpriseNav: NavItem[] = [
     { name: 'CRM', href: '/crm', icon: Users },
-    { name: 'Inventory', href: '/inventory/products', icon: Package },
     { name: 'Orders', href: '/orders', icon: ShoppingCart },
     { name: 'Production', href: '/production', icon: Factory },
 ];
@@ -69,9 +69,20 @@ const inventorySubItems: CrmSubItem[] = [
     { name: 'Requisition', href: '/inventory/requisitions', icon: ClipboardList },
 ];
 
-const productsSubItems: CrmSubItem[] = [
+const productsSubItemsFull: CrmSubItem[] = [
     { name: 'Products', href: '/products', icon: Package },
     { name: 'Services', href: '/services', icon: Wrench },
+];
+
+const ordersSubItems: CrmSubItem[] = [
+    { name: 'Orders', href: '/orders', icon: ShoppingCart },
+    { name: 'Create Order', href: '/orders/create', icon: Plus },
+    { name: 'Order Reports', href: '/orders/reports', icon: BarChart3 },
+];
+
+const productionSubItems: CrmSubItem[] = [
+    { name: 'Production', href: '/production', icon: Factory },
+    { name: 'Production Reports', href: '/production/reports', icon: BarChart3 },
 ];
 
 const managementNav: NavItem[] = [
@@ -99,11 +110,6 @@ const systemNav: NavItem[] = [
     { name: 'Admin', href: '/admin', icon: Settings },
 ];
 
-const productsSubItemsFull: CrmSubItem[] = [
-    { name: 'Products', href: '/products', icon: Package },
-    { name: 'Services', href: '/services', icon: Wrench },
-];
-
 export default function AppLayout({ children }: PropsWithChildren) {
     const user = usePage().props.auth?.user;
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -115,6 +121,8 @@ export default function AppLayout({ children }: PropsWithChildren) {
     const [inventorySlideUpOpen, setInventorySlideUpOpen] = useState(false);
     const [hrmDropdownOpen, setHrmDropdownOpen] = useState(false);
     const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
+    const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
+    const [productionDropdownOpen, setProductionDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [showResults, setShowResults] = useState(false);
@@ -147,9 +155,9 @@ export default function AppLayout({ children }: PropsWithChildren) {
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
     const isCrmPage = currentPath.startsWith('/crm');
     const isInventoryPage = currentPath.startsWith('/inventory') || currentPath.startsWith('/products');
+    const isProductsPage = currentPath.startsWith('/products') || currentPath.startsWith('/services');
     const isOrdersPage = currentPath.startsWith('/orders');
     const isProductionPage = currentPath.startsWith('/production');
-    const isProductsPage = currentPath.startsWith('/products') || currentPath.startsWith('/services');
     const isHrmPage = currentPath.startsWith('/hrm');
     const isProcurementPage = currentPath.startsWith('/procurement');
     const isFinancePage = currentPath.startsWith('/finance');
@@ -170,7 +178,13 @@ export default function AppLayout({ children }: PropsWithChildren) {
         if (isProductsPage) {
             setProductsDropdownOpen(true);
         }
-    }, [isCrmPage, isInventoryPage, isHrmPage, isProductsPage]);
+        if (isOrdersPage) {
+            setOrdersDropdownOpen(true);
+        }
+        if (isProductionPage) {
+            setProductionDropdownOpen(true);
+        }
+    }, [isCrmPage, isInventoryPage, isHrmPage, isProductsPage, isOrdersPage, isProductionPage]);
 
     // Search handler
     const handleSearch = async (query: string) => {
@@ -726,6 +740,104 @@ export default function AppLayout({ children }: PropsWithChildren) {
                             {productsDropdownOpen && sidebarOpen && (
                                 <div className="mt-1 space-y-1 ml-4 border-l-2 border-slate-200 pl-2">
                                     {productsSubItemsFull.map((item) => (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                                                currentPath === item.href
+                                                    ? 'bg-slate-100 text-slate-900 font-medium'
+                                                    : 'text-slate-500 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            <item.icon className="w-4 h-4" />
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Orders Dropdown */}
+                        <div className="space-y-1">
+                            {sidebarOpen ? (
+                                <button
+                                    onClick={() => setOrdersDropdownOpen(!ordersDropdownOpen)}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                        isOrdersPage
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <ShoppingCart className="w-5 h-5 flex-shrink-0" />
+                                        <span>Orders</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform ${ordersDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/orders"
+                                    className={`flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                                        isOrdersPage
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <ShoppingCart className="w-5 h-5" />
+                                </Link>
+                            )}
+                            {ordersDropdownOpen && sidebarOpen && (
+                                <div className="mt-1 space-y-1 ml-4 border-l-2 border-slate-200 pl-2">
+                                    {ordersSubItems.map((item) => (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                                                currentPath === item.href
+                                                    ? 'bg-slate-100 text-slate-900 font-medium'
+                                                    : 'text-slate-500 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            <item.icon className="w-4 h-4" />
+                                            {item.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Production Dropdown */}
+                        <div className="space-y-1">
+                            {sidebarOpen ? (
+                                <button
+                                    onClick={() => setProductionDropdownOpen(!productionDropdownOpen)}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                        isProductionPage
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Factory className="w-5 h-5 flex-shrink-0" />
+                                        <span>Production</span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform ${productionDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/production"
+                                    className={`flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                                        isProductionPage
+                                            ? 'bg-slate-900 text-white'
+                                            : 'text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <Factory className="w-5 h-5" />
+                                </Link>
+                            )}
+                            {productionDropdownOpen && sidebarOpen && (
+                                <div className="mt-1 space-y-1 ml-4 border-l-2 border-slate-200 pl-2">
+                                    {productionSubItems.map((item) => (
                                         <Link
                                             key={item.href}
                                             href={item.href}
