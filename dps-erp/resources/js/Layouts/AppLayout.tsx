@@ -121,6 +121,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
     const [inventorySlideUpOpen, setInventorySlideUpOpen] = useState(false);
     const [hrmDropdownOpen, setHrmDropdownOpen] = useState(false);
     const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
+    const [productsSlideUpOpen, setProductsSlideUpOpen] = useState(false);
     const [ordersDropdownOpen, setOrdersDropdownOpen] = useState(false);
     const [productionDropdownOpen, setProductionDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -1115,6 +1116,17 @@ export default function AppLayout({ children }: PropsWithChildren) {
                     <ShoppingCart className="w-5 h-5" />
                     <span className="text-[10px] font-medium">Orders</span>
                 </Link>
+                <button
+                    onClick={() => setProductsSlideUpOpen(true)}
+                    className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                        isProductsPage 
+                            ? 'text-indigo-600 bg-indigo-50' 
+                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                    }`}
+                >
+                    <Package className="w-5 h-5" />
+                    <span className="text-[10px] font-medium">Products</span>
+                </button>
                 <Link
                     href="/production"
                     className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
@@ -1207,6 +1219,56 @@ export default function AppLayout({ children }: PropsWithChildren) {
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setInventorySlideUpOpen(false)}
+                                        className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
+                                            currentPath === item.href
+                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo/25'
+                                                : 'text-slate-600 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                            currentPath === item.href ? 'bg-white/20' : 'bg-slate-100'
+                                        }`}>
+                                            <item.icon className="w-5 h-5" />
+                                        </div>
+                                        <span className="font-medium">{item.name}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                            <div className="pb-8"></div>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Products Slide-Up Panel */}
+            {productsSlideUpOpen && (
+                <>
+                    <div className="lg:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={() => setProductsSlideUpOpen(false)} />
+                    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
+                        <div className="bg-white rounded-t-3xl shadow-2xl overflow-hidden">
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+                                        <Package className="w-5 h-5 text-indigo-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-slate-900">Products & Services</h3>
+                                        <p className="text-xs text-slate-500">Manage Products & Services</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setProductsSlideUpOpen(false)}
+                                    className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-slate-400" />
+                                </button>
+                            </div>
+                            <div className="p-4 space-y-2">
+                                {productsSubItemsFull.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setProductsSlideUpOpen(false)}
                                         className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
                                             currentPath === item.href
                                                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo/25'
